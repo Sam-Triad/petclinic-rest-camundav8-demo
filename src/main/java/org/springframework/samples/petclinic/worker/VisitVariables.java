@@ -4,5 +4,5 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 
 @JsonInclude(Include.NON_NULL)
-public record VisitVariables(Integer visitId, String outcome) {
+public record VisitVariables(Integer visitId, Boolean checkedIn, String visitNotes, String outcome) {
 }

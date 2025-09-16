@@ -84,27 +84,27 @@ public class VisitRestController implements VisitsApi {
         Visit visit = visitMapper.toVisit(visitDto);
         this.clinicService.saveVisit(visit);
 
-        var zeebeVariables = new VisitVariables(visit.getId(), "");
+        var zeebeVariables = new VisitVariables(visit.getId(), null, null, null);
         zeebeClient.newCreateInstanceCommand()
             .bpmnProcessId("visit_booking")
             .latestVersion()
             .variables(zeebeVariables)
             .send();
 
-        visitDto = visitMapper.toVisitDto(visit);
+        var updatedVisitDto = visitMapper.toVisitDto(visit);
         headers.setLocation(UriComponentsBuilder.newInstance().path("/api/visits/{id}").buildAndExpand(visit.getId()).toUri());
-        return new ResponseEntity<>(visitDto, headers, HttpStatus.CREATED);
+        return new ResponseEntity<>(updatedVisitDto, headers, HttpStatus.CREATED);
     }
 
     @PreAuthorize("hasRole(@roles.OWNER_ADMIN)")
     @Override
-    public ResponseEntity<VisitDto> updateVisit(Integer visitId, VisitFieldsDto visitDto) {
+    public ResponseEntity<VisitDto> updateVisit(Integer visitId, VisitFieldsDto visitFieldsDto) {
         Visit currentVisit = this.clinicService.findVisitById(visitId);
         if (currentVisit == null) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
-        currentVisit.setDate(visitDto.getDate());
-        currentVisit.setDescription(visitDto.getDescription());
+        currentVisit.setDate(visitFieldsDto.getDate());
+        currentVisit.setDescription(visitFieldsDto.getDescription());
         this.clinicService.saveVisit(currentVisit);
         return new ResponseEntity<>(visitMapper.toVisitDto(currentVisit), HttpStatus.NO_CONTENT);
     }
