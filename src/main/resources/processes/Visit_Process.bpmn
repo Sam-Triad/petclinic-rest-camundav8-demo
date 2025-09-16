@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:zeebe="http://camunda.org/schema/zeebe/1.0" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:modeler="http://camunda.org/schema/modeler/1.0" id="Definitions_0maj4lr" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="5.39.0" modeler:executionPlatform="Camunda Cloud" modeler:executionPlatformVersion="8.7.0">
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:zeebe="http://camunda.org/schema/zeebe/1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:modeler="http://camunda.org/schema/modeler/1.0" id="Definitions_0maj4lr" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="5.39.0" modeler:executionPlatform="Camunda Cloud" modeler:executionPlatformVersion="8.7.0">
   <bpmn:process id="visit_booking" name="Visit Booking" isExecutable="true">
     <bpmn:extensionElements>
       <zeebe:versionTag value="0.1" />
@@ -32,9 +32,17 @@
       <bpmn:outgoing>Flow_04xjsql</bpmn:outgoing>
     </bpmn:exclusiveGateway>
     <bpmn:sequenceFlow id="Flow_01iufha" sourceRef="Activity_0lzf1dx" targetRef="Gateway_1slqxco" />
-    <bpmn:sequenceFlow id="Flow_0n0apiv" name="Missed Visit" sourceRef="Gateway_1slqxco" targetRef="Activity_0zu8gda" />
+    <bpmn:sequenceFlow id="Flow_0n0apiv" name="Missed Visit" sourceRef="Gateway_1slqxco" targetRef="Activity_0zu8gda">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">=(checkedIn = false)</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_1eyk7nb" sourceRef="Activity_0zu8gda" targetRef="Event_1dse1b7" />
     <bpmn:serviceTask id="Activity_0zu8gda" name="Charge Visit">
+      <bpmn:extensionElements>
+        <zeebe:taskDefinition type="charge-visit" retries="3" />
+        <zeebe:ioMapping>
+          <zeebe:input source="=visitId" target="visitId" />
+        </zeebe:ioMapping>
+      </bpmn:extensionElements>
       <bpmn:incoming>Flow_0n0apiv</bpmn:incoming>
       <bpmn:incoming>Flow_0p1wjhw</bpmn:incoming>
       <bpmn:outgoing>Flow_1eyk7nb</bpmn:outgoing>
@@ -46,7 +54,9 @@
       <bpmn:incoming>Flow_04xjsql</bpmn:incoming>
       <bpmn:outgoing>Flow_0p1wjhw</bpmn:outgoing>
     </bpmn:userTask>
-    <bpmn:sequenceFlow id="Flow_04xjsql" name="Checked In" sourceRef="Gateway_1slqxco" targetRef="Activity_140tdwm" />
+    <bpmn:sequenceFlow id="Flow_04xjsql" name="Checked In" sourceRef="Gateway_1slqxco" targetRef="Activity_140tdwm">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">=(checkedIn = true)</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_0p1wjhw" sourceRef="Activity_140tdwm" targetRef="Activity_0zu8gda" />
   </bpmn:process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
@@ -81,10 +91,6 @@
         <dc:Bounds x="310" y="170" width="100" height="80" />
         <bpmndi:BPMNLabel />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNEdge id="Flow_1sa7j5q_di" bpmnElement="Flow_1sa7j5q">
-        <di:waypoint x="208" y="210" />
-        <di:waypoint x="310" y="210" />
-      </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_1rtk2nz_di" bpmnElement="Flow_1rtk2nz">
         <di:waypoint x="410" y="210" />
         <di:waypoint x="490" y="210" />
@@ -100,10 +106,6 @@
           <dc:Bounds x="757" y="213" width="60" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_1eyk7nb_di" bpmnElement="Flow_1eyk7nb">
-        <di:waypoint x="1010" y="210" />
-        <di:waypoint x="1092" y="210" />
-      </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_04xjsql_di" bpmnElement="Flow_04xjsql">
         <di:waypoint x="670" y="185" />
         <di:waypoint x="670" y="120" />
@@ -116,6 +118,14 @@
         <di:waypoint x="850" y="120" />
         <di:waypoint x="960" y="120" />
         <di:waypoint x="960" y="170" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1eyk7nb_di" bpmnElement="Flow_1eyk7nb">
+        <di:waypoint x="1010" y="210" />
+        <di:waypoint x="1092" y="210" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1sa7j5q_di" bpmnElement="Flow_1sa7j5q">
+        <di:waypoint x="208" y="210" />
+        <di:waypoint x="310" y="210" />
       </bpmndi:BPMNEdge>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>
