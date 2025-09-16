@@ -54,11 +54,6 @@
     <dependencies>
         <!-- Spring Boot Dependencies all inherit from the spring-boot-starter-parent -->
         <dependency>
-            <groupId>io.camunda</groupId>
-            <artifactId>spring-boot-starter-camunda-sdk</artifactId>
-            <version>8.7.12</version>
-        </dependency>
-        <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-actuator</artifactId>
         </dependency>

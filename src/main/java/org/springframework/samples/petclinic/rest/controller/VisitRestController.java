@@ -25,12 +25,10 @@ import org.springframework.samples.petclinic.rest.api.VisitsApi;
 import org.springframework.samples.petclinic.rest.dto.VisitDto;
 import org.springframework.samples.petclinic.rest.dto.VisitFieldsDto;
 import org.springframework.samples.petclinic.service.ClinicService;
-import org.springframework.samples.petclinic.worker.VisitVariables;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import io.camunda.zeebe.client.ZeebeClient;
 import jakarta.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.List;
@@ -48,12 +46,9 @@ public class VisitRestController implements VisitsApi {
 
     private final VisitMapper visitMapper;
 
-    private final ZeebeClient zeebeClient;
-
-    public VisitRestController(ClinicService clinicService, VisitMapper visitMapper, ZeebeClient zeebeClient) {
+    public VisitRestController(ClinicService clinicService, VisitMapper visitMapper) {
         this.clinicService = clinicService;
         this.visitMapper = visitMapper;
-        this.zeebeClient = zeebeClient;
     }
 
 
@@ -83,28 +78,20 @@ public class VisitRestController implements VisitsApi {
         HttpHeaders headers = new HttpHeaders();
         Visit visit = visitMapper.toVisit(visitDto);
         this.clinicService.saveVisit(visit);
-
-        var zeebeVariables = new VisitVariables(visit.getId(), null, null, null);
-        zeebeClient.newCreateInstanceCommand()
-            .bpmnProcessId("visit_booking")
-            .latestVersion()
-            .variables(zeebeVariables)
-            .send();
-
-        var updatedVisitDto = visitMapper.toVisitDto(visit);
+        visitDto = visitMapper.toVisitDto(visit);
         headers.setLocation(UriComponentsBuilder.newInstance().path("/api/visits/{id}").buildAndExpand(visit.getId()).toUri());
-        return new ResponseEntity<>(updatedVisitDto, headers, HttpStatus.CREATED);
+        return new ResponseEntity<>(visitDto, headers, HttpStatus.CREATED);
     }
 
     @PreAuthorize("hasRole(@roles.OWNER_ADMIN)")
     @Override
-    public ResponseEntity<VisitDto> updateVisit(Integer visitId, VisitFieldsDto visitFieldsDto) {
+    public ResponseEntity<VisitDto> updateVisit(Integer visitId, VisitFieldsDto visitDto) {
         Visit currentVisit = this.clinicService.findVisitById(visitId);
         if (currentVisit == null) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
-        currentVisit.setDate(visitFieldsDto.getDate());
-        currentVisit.setDescription(visitFieldsDto.getDescription());
+        currentVisit.setDate(visitDto.getDate());
+        currentVisit.setDescription(visitDto.getDescription());
         this.clinicService.saveVisit(currentVisit);
         return new ResponseEntity<>(visitMapper.toVisitDto(currentVisit), HttpStatus.NO_CONTENT);
     }
