@@ -2079,6 +2079,11 @@ components:
               minimum: 0
               example: 1
               readOnly: true
+            visitNotes:
+              title: Visit notes
+              description: Vet notes from the visit.
+              type: string
+              example: ''
             petId:
               title: Pet ID
               description: The ID of the pet.

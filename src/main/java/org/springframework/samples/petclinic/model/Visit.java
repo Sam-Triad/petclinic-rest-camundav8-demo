@@ -28,6 +28,10 @@ import java.time.LocalDate;
 @Table(name = "visits")
 public class Visit extends BaseEntity {
 
+    @Lob
+    @Column(name = "visit_notes")
+    private String visitNotes;
+
     /**
      * Holds value of property date.
      */
@@ -109,6 +113,14 @@ public class Visit extends BaseEntity {
      */
     public void setPet(Pet pet) {
         this.pet = pet;
+    }
+
+    public String getVisitNotes() {
+        return visitNotes;
+    }
+
+    public void setVisitNotes(String visitNotes) {
+        this.visitNotes = visitNotes;
     }
 
 }

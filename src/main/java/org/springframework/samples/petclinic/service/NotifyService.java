@@ -9,8 +9,8 @@ public class NotifyService {
 
     private static final Logger log = LoggerFactory.getLogger(NotifyService.class);
 
-    public void sendVisitReminder(Integer visitId) {
-        log.info("Notifying owner about visit with id: {}", visitId);
-        // Add logic here
+    public void sendUserNotification(String message, String ownerName) {
+        log.info("Dear {},\n {}", ownerName, message);
+        // Broadcast logic here
     }
 }

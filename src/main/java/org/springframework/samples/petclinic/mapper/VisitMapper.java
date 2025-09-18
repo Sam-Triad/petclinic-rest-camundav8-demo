@@ -14,6 +14,7 @@ import java.util.Collection;
 @Mapper(uses = PetMapper.class)
 public interface VisitMapper {
     @Mapping(source = "petId", target = "pet.id")
+    @Mapping(source = "visitNotes", target = "visitNotes")
     Visit toVisit(VisitDto visitDto);
 
     @Mapping(target = "id", ignore = true)

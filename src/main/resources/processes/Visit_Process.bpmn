@@ -11,9 +11,12 @@
     <bpmn:endEvent id="Event_1dse1b7" name="Visit Complete">
       <bpmn:incoming>Flow_1eyk7nb</bpmn:incoming>
     </bpmn:endEvent>
-    <bpmn:serviceTask id="Activity_141z8wv" name="Remind Owner">
+    <bpmn:serviceTask id="Activity_141z8wv" name="Confirm Visit">
       <bpmn:extensionElements>
         <zeebe:taskDefinition type="notify-owner" retries="1" />
+        <zeebe:taskHeaders>
+          <zeebe:header key="message" value="Your appointment is confirmed." />
+        </zeebe:taskHeaders>
       </bpmn:extensionElements>
       <bpmn:incoming>Flow_1sa7j5q</bpmn:incoming>
       <bpmn:outgoing>Flow_1rtk2nz</bpmn:outgoing>
@@ -45,7 +48,7 @@
         </zeebe:ioMapping>
       </bpmn:extensionElements>
       <bpmn:incoming>Flow_0n0apiv</bpmn:incoming>
-      <bpmn:incoming>Flow_0p1wjhw</bpmn:incoming>
+      <bpmn:incoming>Flow_1haq8kc</bpmn:incoming>
       <bpmn:outgoing>Flow_1eyk7nb</bpmn:outgoing>
     </bpmn:serviceTask>
     <bpmn:userTask id="Activity_140tdwm" name="Add Notes">
@@ -59,7 +62,15 @@
     <bpmn:sequenceFlow id="Flow_04xjsql" name="Checked In" sourceRef="Gateway_1slqxco" targetRef="Activity_140tdwm">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">=(checkedIn = true)</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="Flow_0p1wjhw" sourceRef="Activity_140tdwm" targetRef="Activity_0zu8gda" />
+    <bpmn:sequenceFlow id="Flow_0p1wjhw" sourceRef="Activity_140tdwm" targetRef="Activity_0aj0u8p" />
+    <bpmn:sequenceFlow id="Flow_1haq8kc" sourceRef="Activity_0aj0u8p" targetRef="Activity_0zu8gda" />
+    <bpmn:serviceTask id="Activity_0aj0u8p" name="Persist Notes">
+      <bpmn:extensionElements>
+        <zeebe:taskDefinition type="persist-vet-notes" />
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_0p1wjhw</bpmn:incoming>
+      <bpmn:outgoing>Flow_1haq8kc</bpmn:outgoing>
+    </bpmn:serviceTask>
   </bpmn:process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
     <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="visit_booking">
@@ -67,12 +78,6 @@
         <dc:Bounds x="172" y="192" width="36" height="36" />
         <bpmndi:BPMNLabel>
           <dc:Bounds x="157" y="235" width="67" height="14" />
-        </bpmndi:BPMNLabel>
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Event_1dse1b7_di" bpmnElement="Event_1dse1b7">
-        <dc:Bounds x="1092" y="192" width="36" height="36" />
-        <bpmndi:BPMNLabel>
-          <dc:Bounds x="1134" y="203" width="71" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_1v7lrn8_di" bpmnElement="Activity_141z8wv">
@@ -89,12 +94,21 @@
           <dc:Bounds x="634" y="242" width="72" height="27" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_0wor55k_di" bpmnElement="Activity_0zu8gda">
-        <dc:Bounds x="910" y="170" width="100" height="80" />
-      </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_0uktaps_di" bpmnElement="Activity_140tdwm">
         <dc:Bounds x="750" y="80" width="100" height="80" />
         <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_1dse1b7_di" bpmnElement="Event_1dse1b7">
+        <dc:Bounds x="1232" y="192" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1274" y="203" width="71" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0wor55k_di" bpmnElement="Activity_0zu8gda">
+        <dc:Bounds x="1030" y="170" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1u517d1_di" bpmnElement="Activity_0aj0u8p">
+        <dc:Bounds x="900" y="80" width="100" height="80" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNEdge id="Flow_1sa7j5q_di" bpmnElement="Flow_1sa7j5q">
         <di:waypoint x="208" y="210" />
@@ -110,14 +124,14 @@
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_0n0apiv_di" bpmnElement="Flow_0n0apiv">
         <di:waypoint x="695" y="210" />
-        <di:waypoint x="910" y="210" />
+        <di:waypoint x="1030" y="210" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="757" y="213" width="60" height="14" />
+          <dc:Bounds x="808" y="213" width="60" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_1eyk7nb_di" bpmnElement="Flow_1eyk7nb">
-        <di:waypoint x="1010" y="210" />
-        <di:waypoint x="1092" y="210" />
+        <di:waypoint x="1130" y="210" />
+        <di:waypoint x="1232" y="210" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_04xjsql_di" bpmnElement="Flow_04xjsql">
         <di:waypoint x="670" y="185" />
@@ -129,8 +143,12 @@
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_0p1wjhw_di" bpmnElement="Flow_0p1wjhw">
         <di:waypoint x="850" y="120" />
-        <di:waypoint x="960" y="120" />
-        <di:waypoint x="960" y="170" />
+        <di:waypoint x="900" y="120" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1haq8kc_di" bpmnElement="Flow_1haq8kc">
+        <di:waypoint x="1000" y="120" />
+        <di:waypoint x="1080" y="120" />
+        <di:waypoint x="1080" y="170" />
       </bpmndi:BPMNEdge>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>
