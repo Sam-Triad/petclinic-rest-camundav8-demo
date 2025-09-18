@@ -7,11 +7,11 @@
     <bpmn:startEvent id="visit_registered" name="Visit Registed">
       <bpmn:outgoing>Flow_1sa7j5q</bpmn:outgoing>
     </bpmn:startEvent>
-    <bpmn:sequenceFlow id="Flow_1sa7j5q" sourceRef="visit_registered" targetRef="Activity_141z8wv" />
-    <bpmn:endEvent id="Event_1dse1b7" name="Visit Complete">
+    <bpmn:sequenceFlow id="Flow_1sa7j5q" sourceRef="visit_registered" targetRef="Task_Confirm_Visit" />
+    <bpmn:endEvent id="Event_Visit_Complete" name="Visit Complete">
       <bpmn:incoming>Flow_1eyk7nb</bpmn:incoming>
     </bpmn:endEvent>
-    <bpmn:serviceTask id="Activity_141z8wv" name="Confirm Visit">
+    <bpmn:serviceTask id="Task_Confirm_Visit" name="Confirm Visit">
       <bpmn:extensionElements>
         <zeebe:taskDefinition type="notify-owner" retries="1" />
         <zeebe:taskHeaders>
@@ -21,7 +21,7 @@
       <bpmn:incoming>Flow_1sa7j5q</bpmn:incoming>
       <bpmn:outgoing>Flow_1rtk2nz</bpmn:outgoing>
     </bpmn:serviceTask>
-    <bpmn:userTask id="Activity_0lzf1dx" name="Check in owner">
+    <bpmn:userTask id="Task_Check_In" name="Check in owner">
       <bpmn:extensionElements>
         <zeebe:userTask />
         <zeebe:formDefinition formId="Confirm_Visit" />
@@ -29,18 +29,18 @@
       <bpmn:incoming>Flow_1rtk2nz</bpmn:incoming>
       <bpmn:outgoing>Flow_01iufha</bpmn:outgoing>
     </bpmn:userTask>
-    <bpmn:sequenceFlow id="Flow_1rtk2nz" sourceRef="Activity_141z8wv" targetRef="Activity_0lzf1dx" />
-    <bpmn:exclusiveGateway id="Gateway_1slqxco" name="Owner attends appointment?">
+    <bpmn:sequenceFlow id="Flow_1rtk2nz" sourceRef="Task_Confirm_Visit" targetRef="Task_Check_In" />
+    <bpmn:exclusiveGateway id="Decision_Owner_Attends" name="Owner attends appointment?">
       <bpmn:incoming>Flow_01iufha</bpmn:incoming>
       <bpmn:outgoing>Flow_0n0apiv</bpmn:outgoing>
       <bpmn:outgoing>Flow_04xjsql</bpmn:outgoing>
     </bpmn:exclusiveGateway>
-    <bpmn:sequenceFlow id="Flow_01iufha" sourceRef="Activity_0lzf1dx" targetRef="Gateway_1slqxco" />
-    <bpmn:sequenceFlow id="Flow_0n0apiv" name="Missed Visit" sourceRef="Gateway_1slqxco" targetRef="Activity_0zu8gda">
+    <bpmn:sequenceFlow id="Flow_01iufha" sourceRef="Task_Check_In" targetRef="Decision_Owner_Attends" />
+    <bpmn:sequenceFlow id="Flow_0n0apiv" name="Missed Visit" sourceRef="Decision_Owner_Attends" targetRef="Task_Charge_Visit">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">=(checkedIn = false)</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="Flow_1eyk7nb" sourceRef="Activity_0zu8gda" targetRef="Event_1dse1b7" />
-    <bpmn:serviceTask id="Activity_0zu8gda" name="Charge Visit">
+    <bpmn:sequenceFlow id="Flow_1eyk7nb" sourceRef="Task_Charge_Visit" targetRef="Event_Visit_Complete" />
+    <bpmn:serviceTask id="Task_Charge_Visit" name="Charge Visit">
       <bpmn:extensionElements>
         <zeebe:taskDefinition type="charge-visit" retries="3" />
         <zeebe:ioMapping>
@@ -51,7 +51,7 @@
       <bpmn:incoming>Flow_1haq8kc</bpmn:incoming>
       <bpmn:outgoing>Flow_1eyk7nb</bpmn:outgoing>
     </bpmn:serviceTask>
-    <bpmn:userTask id="Activity_140tdwm" name="Add Notes">
+    <bpmn:userTask id="Task_Add_Notes" name="Add Notes">
       <bpmn:extensionElements>
         <zeebe:userTask />
         <zeebe:formDefinition formId="Update_Visit" />
@@ -59,14 +59,14 @@
       <bpmn:incoming>Flow_04xjsql</bpmn:incoming>
       <bpmn:outgoing>Flow_0p1wjhw</bpmn:outgoing>
     </bpmn:userTask>
-    <bpmn:sequenceFlow id="Flow_04xjsql" name="Checked In" sourceRef="Gateway_1slqxco" targetRef="Activity_140tdwm">
+    <bpmn:sequenceFlow id="Flow_04xjsql" name="Checked In" sourceRef="Decision_Owner_Attends" targetRef="Task_Add_Notes">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">=(checkedIn = true)</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="Flow_0p1wjhw" sourceRef="Activity_140tdwm" targetRef="Activity_0aj0u8p" />
-    <bpmn:sequenceFlow id="Flow_1haq8kc" sourceRef="Activity_0aj0u8p" targetRef="Activity_0zu8gda" />
-    <bpmn:serviceTask id="Activity_0aj0u8p" name="Persist Notes">
+    <bpmn:sequenceFlow id="Flow_0p1wjhw" sourceRef="Task_Add_Notes" targetRef="Task_Persist_Notes" />
+    <bpmn:sequenceFlow id="Flow_1haq8kc" sourceRef="Task_Persist_Notes" targetRef="Task_Charge_Visit" />
+    <bpmn:serviceTask id="Task_Persist_Notes" name="Persist Notes">
       <bpmn:extensionElements>
-        <zeebe:taskDefinition type="persist-vet-notes" />
+        <zeebe:taskDefinition type="persist-vet-notes" retries="3" />
       </bpmn:extensionElements>
       <bpmn:incoming>Flow_0p1wjhw</bpmn:incoming>
       <bpmn:outgoing>Flow_1haq8kc</bpmn:outgoing>
@@ -80,34 +80,34 @@
           <dc:Bounds x="157" y="235" width="67" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_1v7lrn8_di" bpmnElement="Activity_141z8wv">
+      <bpmndi:BPMNShape id="Activity_1v7lrn8_di" bpmnElement="Task_Confirm_Visit">
         <dc:Bounds x="310" y="170" width="100" height="80" />
         <bpmndi:BPMNLabel />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_02eteiy_di" bpmnElement="Activity_0lzf1dx">
+      <bpmndi:BPMNShape id="Activity_02eteiy_di" bpmnElement="Task_Check_In">
         <dc:Bounds x="490" y="170" width="100" height="80" />
         <bpmndi:BPMNLabel />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Gateway_1slqxco_di" bpmnElement="Gateway_1slqxco" isMarkerVisible="true">
+      <bpmndi:BPMNShape id="Gateway_1slqxco_di" bpmnElement="Decision_Owner_Attends" isMarkerVisible="true">
         <dc:Bounds x="645" y="185" width="50" height="50" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="634" y="242" width="72" height="27" />
+          <dc:Bounds x="634" y="242" width="73" height="27" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_0uktaps_di" bpmnElement="Activity_140tdwm">
+      <bpmndi:BPMNShape id="Activity_0uktaps_di" bpmnElement="Task_Add_Notes">
         <dc:Bounds x="750" y="80" width="100" height="80" />
         <bpmndi:BPMNLabel />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Event_1dse1b7_di" bpmnElement="Event_1dse1b7">
+      <bpmndi:BPMNShape id="Event_1dse1b7_di" bpmnElement="Event_Visit_Complete">
         <dc:Bounds x="1232" y="192" width="36" height="36" />
         <bpmndi:BPMNLabel>
           <dc:Bounds x="1274" y="203" width="71" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_0wor55k_di" bpmnElement="Activity_0zu8gda">
+      <bpmndi:BPMNShape id="Activity_0wor55k_di" bpmnElement="Task_Charge_Visit">
         <dc:Bounds x="1030" y="170" width="100" height="80" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_1u517d1_di" bpmnElement="Activity_0aj0u8p">
+      <bpmndi:BPMNShape id="Activity_1u517d1_di" bpmnElement="Task_Persist_Notes">
         <dc:Bounds x="900" y="80" width="100" height="80" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNEdge id="Flow_1sa7j5q_di" bpmnElement="Flow_1sa7j5q">

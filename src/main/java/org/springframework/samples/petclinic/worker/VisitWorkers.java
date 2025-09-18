@@ -51,7 +51,7 @@ public class VisitWorkers {
         if (variables.visitNotes() != null && !variables.visitNotes().isBlank()) {
             var visit = clinicService.findVisitById(variables.visitId());
             if (visit != null) {
-                visit.setDescription(variables.visitNotes());
+                visit.setVisitNotes(variables.visitNotes());
                 clinicService.saveVisit(visit);
                 log.info("Saved notes for visit {}: {}", variables.visitId(), variables.visitNotes());
             }

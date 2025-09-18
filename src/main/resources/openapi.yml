@@ -2083,7 +2083,7 @@ components:
               title: Visit notes
               description: Vet notes from the visit.
               type: string
-              example: ''
+              example: ' '
             petId:
               title: Pet ID
               description: The ID of the pet.

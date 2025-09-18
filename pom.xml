@@ -19,6 +19,8 @@
 
     <properties>
 
+        <java.version>21</java.version>
+
         <!-- Third-party libraries -->
         <spring-data-jdbc.version>1.2.1.RELEASE</spring-data-jdbc.version>
         <springdoc-openapi-ui.version>2.8.9</springdoc-openapi-ui.version>
@@ -40,6 +42,7 @@
         <maven.site-plugin.version>3.21.0</maven.site-plugin.version>
         <maven.spotbugs-plugin.version>4.8.6.6</maven.spotbugs-plugin.version>
         <maven.version>3.9.9</maven.version>
+        <camunda.version>8.7.12</camunda.version>
 
         <!-- Docker -->
         <docker.jib-maven-plugin.version>3.4.6</docker.jib-maven-plugin.version>
@@ -56,7 +59,13 @@
         <dependency>
             <groupId>io.camunda</groupId>
             <artifactId>spring-boot-starter-camunda-sdk</artifactId>
-            <version>8.7.12</version>
+            <version>${camunda.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.camunda</groupId>
+            <artifactId>spring-boot-starter-camunda-test</artifactId>
+            <version>${camunda.version}</version>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
